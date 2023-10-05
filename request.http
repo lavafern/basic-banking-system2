@@ -4,10 +4,45 @@ POST http://localhost:3000/api/v1/users
 Content-Type: application/json
 
 {
-    "email" : "hades@gmail.com",
-    "name" : "hades"
+    "email" : "madara@gmail.com",
+    "name" : "madara",
+    "identity_type" : "driving license", 
+    "identity_number" : "542322523",
+    "address" : "Jakarta"
 }
 
 ###
 GET http://localhost:3000/api/v1/users
 
+
+###
+GET http://localhost:3000/api/v1/users/17
+
+
+###
+POST http://localhost:3000/api/v1/accounts
+Content-Type: application/json
+
+{
+    "bankName" : "Bank kratos",
+    "balance" : 10000000,
+    "userId" : 17
+}
+
+###
+GET http://localhost:3000/api/v1/accounts
+
+
+###
+GET http://localhost:3000/api/v1/accounts/7
+
+
+###
+POST http://localhost:3000/api/v1/transactions
+Content-Type: application/json
+
+{
+    "sourceId" : 15,
+    "destinatonId" : 16,
+    "amount" : 2500000
+}

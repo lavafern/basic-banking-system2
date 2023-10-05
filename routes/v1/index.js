@@ -10,8 +10,12 @@ router.post('/users',UserHandler().createUser)
 router.get('/users',UserHandler().showUser)
 router.get('/users/:userid',UserHandler().showUserById)
 
+router.post('/accounts',UserHandler().createAccount)
+router.get('/accounts',UserHandler().showAccounts)
+router.get('/accounts/:accountid',UserHandler().showAccountsById)
 
-// router.get('/users')
+
+router.post('/transactions',UserHandler().doTransaction)
 // router.post('/users')
 
 // router.get('/users')
