@@ -1,6 +1,6 @@
 const { PrismaClient } = require("@prisma/client")
 const prisma = new PrismaClient()
-const {generateaAccNumber} = require('../../helpers/index')
+const {validAccNumber} = require('../../helpers/index')
 
 const UserHandler = () => {
     
@@ -41,14 +41,12 @@ const UserHandler = () => {
             next(err)
         }
 
-
     }
 
     const showUser = async (req,res,next) => {
 
         try {
             let users = await prisma.users.findMany()
-
             users = users.length > 0 ? users : 'no data'
 
             const result = {
@@ -62,14 +60,13 @@ const UserHandler = () => {
             .send(result)
 
         } catch(err) {
-            console.log(err);
             next(err)
         }
     }
 
     const showUserById = async (req,res,next) => {
         try {
-            const id = parseInt(req.params.userid)
+            const id = Number(req.params.userid)
             const foundUser  = await prisma.users.findUniqueOrThrow({
                 where: {
                     id : id
@@ -87,18 +84,17 @@ const UserHandler = () => {
             .send(result)
 
         } catch(err) {
-            console.log(err);
             next(err)
         }
     }
-
 
     const createAccount = async (req,res,next) => {
         try {
             const bankName = req.body.bankName 
             const balance = req.body.balance
             const userId = req.body.userId
-            const bank_account_number = generateaAccNumber()
+            let bank_account_number = await validAccNumber(prisma.bank_accounts.findMany)
+
             
             //checkid
             await prisma.users.findUniqueOrThrow({ 
@@ -116,7 +112,6 @@ const UserHandler = () => {
                 }
             })
 
-
             const result = {
                 status : "succes",
                 message : "create new bank account succes!",
@@ -128,7 +123,6 @@ const UserHandler = () => {
             .send(result)
 
         } catch (err) {
-            console.log(err);
             next(err)
         }
     }
@@ -151,15 +145,14 @@ const UserHandler = () => {
             .send(result)
 
         } catch(err) {
-            console.log(err);
             next(err)
         }
     }
 
     const showAccountsById = async (req,res,next) => {
         try {
-            const id = parseInt(req.params.accountid)
-            const foundUser  = await prisma.bank_accounts.findUniqueOrThrow({
+            const id = Number(req.params.accountid)
+            const foundAccount  = await prisma.bank_accounts.findUniqueOrThrow({
                 where: {
                     id : id
                 }
@@ -168,7 +161,7 @@ const UserHandler = () => {
             const result = {
                 status : 'success',
                 message : 'data fetched succesfully! ',
-                data : foundUser
+                data : foundAccount
             }
 
             res
@@ -176,17 +169,18 @@ const UserHandler = () => {
             .send(result)
 
         } catch(err) {
-            console.log(err);
             next(err)
         }
     }
 
-    const doTransaction = async (req,res,next) => {
+    const createTransaction = async (req,res,next) => {
 
         try{
-        const amount = parseInt(req.body.amount)
-        const sourceId = parseInt(req.body.sourceId)
-        const destinatonId = parseInt(req.body.destinatonId)
+        const tfAmount = Number(req.body.amount)
+        const sourceId = Number(req.body.sourceId)
+        const destinatonId = Number(req.body.destinatonId)
+
+        if (isNaN(tfAmount)) throw new Error("Not a number")
 
         const sender = prisma.bank_accounts.update({
             where: { 
@@ -194,9 +188,9 @@ const UserHandler = () => {
             },
             data: {
                 balance : {
-                    increment : -amount
+                    increment : -tfAmount
                 }
-              },
+              }
         })
 
         const receiver = prisma.bank_accounts.update({
@@ -205,21 +199,20 @@ const UserHandler = () => {
             },
             data: {
                 balance : {
-                    increment : amount
+                    increment : tfAmount
                 },
-              },
+              }
         })
-
         const transactionRecord = prisma.transactions.create({
             data : {
                 source_account_id : sourceId,
-                destination_account_id : destinatonId
+                destination_account_id : destinatonId,
+                amount : tfAmount
             }
         })
 
         const transactionPrisma = await prisma.$transaction([sender,receiver,transactionRecord])
 
-        console.log(transactionPrisma);
         const result = {
             status : "succes",
             message : "succes do transaction!",
@@ -231,10 +224,133 @@ const UserHandler = () => {
         .send(result)
 
         } catch (err) {
-            console.log(err);
             next(err)
         }
 
+    }
+
+    const showTransactions = async (req,res,next) => {
+        try {
+            let transactions = await prisma.transactions.findMany()
+            transactions = transactions.length > 0 ? transactions : 'no data'
+            
+            const result = {
+                status : "succes",
+                message : "succes fetch all transaction!",
+                data : transactions
+            }
+
+            res
+            .status(200)
+            .send(result)
+        } catch (err) {
+            next(err)
+        }
+    }
+
+    const showTransactionsById = async (req,res,next) => {
+        try {
+            const id = Number(req.params.transactionId)
+            const foundTransaction  = await prisma.transactions.findUniqueOrThrow({
+                where: {
+                    id : id
+                }
+            })
+            const names = await prisma.bank_accounts.findMany({
+                select : {
+                    bank_name : true
+                },
+                where : {
+                    OR : [
+                        { id: foundTransaction.source_account_id },
+                        { id: foundTransaction.destination_account_id },
+                    ]
+                }
+            })
+
+            foundTransaction.source_account_name = names[0].bank_name
+            foundTransaction.destination_account_name = names[1].bank_name
+
+            const result = {
+                status : 'success',
+                message : 'data fetched succesfully! ',
+                data : foundTransaction
+            }
+
+            res
+            .status(200)
+            .send(result)
+
+        } catch(err) {
+            next(err)
+        }
+    }
+
+    const withdraw = async (req,res,next) => {
+        try {
+            const amount = req.body.amount
+            const bankId = req.body.bankId
+            if (isNaN(amount)) throw new Error("Not a number")
+
+
+            const withdrawData = await prisma.bank_accounts.update({
+                where: { 
+                    id : bankId
+                },
+                data: {
+                    balance : {
+                        increment : -amount
+                    }
+                  }
+            })
+
+            const result = {
+                status : 'success',
+                message : 'withdraw succes!',
+                data : withdrawData
+            }
+
+            res
+            .status(201)
+            .send(result)
+
+
+        } catch (err) {
+            next(err)
+        }  
+       
+    }
+
+    const deposit = async (req,res,next) => {
+        try {
+            const amount = req.body.amount
+            const bankId = req.body.bankId
+            if (isNaN(amount)) throw new Error("Not a number")
+
+            const depositData = await prisma.bank_accounts.update({
+                where: { 
+                    id : bankId
+                },
+                data: {
+                    balance : {
+                        increment : amount
+                    }
+                  }
+            })
+
+            const result = {
+                status : 'success',
+                message : 'deposit succes!',
+                data : depositData
+            }
+
+            res
+            .status(201)
+            .send(result)
+
+        } catch (err) {
+            next(err)
+        }
     }
 
     return {
@@ -244,11 +360,12 @@ const UserHandler = () => {
         createAccount,
         showAccounts,
         showAccountsById,
-        doTransaction
+        createTransaction,
+        showTransactions,
+        showTransactionsById,
+        withdraw,
+        deposit
     }
 }
 
 module.exports = {UserHandler}
-
-
-

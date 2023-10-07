@@ -8,4 +8,17 @@ const generateaAccNumber = () => {
     return result
 }
 
-module.exports = {generateaAccNumber}
+const validAccNumber = async (prismaq) => {
+    while (true) {
+        let bank_account_number = generateaAccNumber()
+        const check = await prismaq({ 
+            where: {
+                bank_account_number : bank_account_number
+            }
+        })
+        if (check.length === 0) return bank_account_number;
+        }
+    }
+
+
+module.exports = {validAccNumber}

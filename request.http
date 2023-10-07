@@ -1,13 +1,13 @@
 
-
+///USERS
 POST http://localhost:3000/api/v1/users
 Content-Type: application/json
 
 {
-    "email" : "madara@gmail.com",
-    "name" : "madara",
+    "email" : "halo@gmail.com",
+    "name" : "halo",
     "identity_type" : "driving license", 
-    "identity_number" : "542322523",
+    "identity_number" : "5423225132",
     "address" : "Jakarta"
 }
 
@@ -16,17 +16,25 @@ GET http://localhost:3000/api/v1/users
 
 
 ###
-GET http://localhost:3000/api/v1/users/17
+GET http://localhost:3000/api/v1/users/15
 
+
+
+
+
+
+
+
+///ACCOUNTS
 
 ###
 POST http://localhost:3000/api/v1/accounts
 Content-Type: application/json
 
 {
-    "bankName" : "Bank kratos",
+    "bankName" : "Bank f",
     "balance" : 10000000,
-    "userId" : 17
+    "userId" : 19
 }
 
 ###
@@ -34,8 +42,16 @@ GET http://localhost:3000/api/v1/accounts
 
 
 ###
-GET http://localhost:3000/api/v1/accounts/7
+GET http://localhost:3000/api/v1/accounts/15
 
+
+
+
+
+
+
+
+///TRANSACTIONS
 
 ###
 POST http://localhost:3000/api/v1/transactions
@@ -43,6 +59,37 @@ Content-Type: application/json
 
 {
     "sourceId" : 15,
-    "destinatonId" : 16,
-    "amount" : 2500000
+    "destinatonId" : 14,
+    "amount" : 1
+}
+
+
+###
+GET http://localhost:3000/api/v1/transactions
+
+###
+GET http://localhost:3000/api/v1/transactions/11
+
+
+
+//WITHDRAW
+###
+PUT http://localhost:3000/api/v1/withdraw
+Content-Type: application/json
+
+{
+    "bankId" : 18,
+    "amount" : 99999
+}
+
+
+
+//DEPOSIT
+###
+PUT http://localhost:3000/api/v1/deposit
+Content-Type: application/json
+
+{
+    "bankId" : 18,
+    "amount" : 9999
 }
