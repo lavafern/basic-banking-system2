@@ -13,6 +13,15 @@ const UserHandler = () => {
             const identity_type = req.body.identity_type
             const identity_number = req.body.identity_number
             const address = req.body.address
+
+            const checkIdentityNumber = await prisma.profiles.findMany({ 
+                where: {
+                    identity_number : identity_number
+                }
+            })
+
+            if (checkIdentityNumber.length > 0) throw new Error("identity Number used by other user!") 
+
             const newUser = await prisma.users.create({
                 data : {
                     email : email,
@@ -46,9 +55,18 @@ const UserHandler = () => {
     const showUser = async (req,res,next) => {
 
         try {
-            let users = await prisma.users.findMany()
+            let users = await prisma.users.findMany({
+                include : {
+                    profiles : {
+                        select : {
+                            identity_type : true,
+                            identity_number : true,
+                            address : true
+                        }
+                    }
+                }
+            })
             users = users.length > 0 ? users : 'no data'
-
             const result = {
                 status : 'success',
                 message : 'data fetched succesfully! ',
@@ -84,6 +102,97 @@ const UserHandler = () => {
             .send(result)
 
         } catch(err) {
+            next(err)
+        }
+    }
+
+    const updateUser = async (req,res,next) => {
+        try {
+            const id = Number(req.params.id)
+            const newName = req.body.name
+            const newEmail = req.body.email
+            const foundUser = await prisma.users.update({
+                where : {
+                    id : id
+                },
+                data: {
+                    name : newName,
+                    email : newEmail
+                  }
+            })
+
+            const result = {
+                status : 'success',
+                message : 'user updated succesfully! ',
+                data : foundUser
+            }
+            res
+            .status(201)
+            .send(result)
+
+        } catch (err) {
+            next(err)
+        }
+    }
+
+    const deleteUser = async (req,res,next) => {
+        try {
+            const id = Number(req.params.id)
+
+            const deletedUser = await prisma.users.delete({
+                where : {
+                    id : id
+                }
+            })
+
+            const result = {
+                status : 'success',
+                message : 'user deleted ! ',
+                data : deletedUser
+            }
+            res
+            .status(200)
+            .send(result)
+
+        } catch (err) {
+            next(err)
+        }
+    }
+
+    const updateProfile = async (req,res,next) => {
+        try {
+            const userid = Number(req.params.id)
+            const identity_type = req.body.identity_type
+            const identity_number = req.body.identity_number
+            const address = req.body.address
+            const checkIdentityNumber = await prisma.profiles.findMany({ 
+                where: {
+                    identity_number : identity_number
+                }
+            })
+
+            if (checkIdentityNumber.length >0) throw new Error("identity Number used by other user!") 
+            const profile = await prisma.profiles.update({
+                where : {
+                    user_id : userid
+                },
+                data : {
+                    identity_type : identity_type,
+                    identity_number : identity_number,
+                    address : address
+                }
+            })
+
+            const result = {
+                status : 'success',
+                message : 'profile updated succesfully! ',
+                data : profile
+            }
+            res
+            .status(201)
+            .send(result)
+
+        } catch (err) {
             next(err)
         }
     }
@@ -172,6 +281,59 @@ const UserHandler = () => {
             next(err)
         }
     }
+
+    const updateAccount = async (req,res,next) => {
+        try {
+            const accointId = Number(req.params.id)
+            const newBankName = req.body.bankName
+            const foundUser = await prisma.bank_accounts.update({
+                where : {
+                    id : accointId
+                },
+                data: {
+                    bank_name : newBankName
+                  }
+            })
+
+            const result = {
+                status : 'success',
+                message : 'Bank updated succesfully! ',
+                data : foundUser
+            }
+            res
+            .status(201)
+            .send(result)
+
+        } catch (err) {
+            next(err)
+        }
+    }
+
+    const deleteAccount = async (req,res,next) => {
+        try {
+            const bankId = Number(req.params.bankId)
+
+            const deletedAcc = await prisma.bank_accounts.delete({
+                where : {
+                    id : bankId
+                }
+            })
+
+            const result = {
+                status : 'success',
+                message : 'user deleted ! ',
+                data : deletedAcc
+            }
+            res
+            .status(200)
+            .send(result)
+
+        } catch (err) {
+            next(err)
+        }
+    }
+
+
 
     const createTransaction = async (req,res,next) => {
 
@@ -357,9 +519,14 @@ const UserHandler = () => {
         createUser,
         showUser,
         showUserById,
+        updateUser,
+        deleteUser,
+        updateProfile,
         createAccount,
         showAccounts,
         showAccountsById,
+        updateAccount,
+        deleteAccount,
         createTransaction,
         showTransactions,
         showTransactionsById,
