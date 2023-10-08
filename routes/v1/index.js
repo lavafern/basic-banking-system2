@@ -1,6 +1,9 @@
 const express = require('express')
 const router = express.Router()
-const {UserHandler} = require('../../handlers/v1/bank')
+const {UserHandler} = require('../../handlers/v1/userHandler')
+const {accountHandler} = require('../../handlers/v1/accountHandler')
+const {transactionHandler} = require('../../handlers/v1/transactionHandler')
+
 
 router.post('/users',UserHandler().createUser)
 router.get('/users',UserHandler().showUser)
@@ -9,18 +12,18 @@ router.put('/users/:id',UserHandler().updateUser)
 router.delete('/users/:id',UserHandler().deleteUser)
 router.put('/profile/:id',UserHandler().updateProfile)
 
-router.post('/accounts',UserHandler().createAccount)
-router.get('/accounts',UserHandler().showAccounts)
-router.get('/accounts/:accountid',UserHandler().showAccountsById)
-router.put('/accounts/:id',UserHandler().updateAccount)
-router.delete('/accounts/:bankId',UserHandler().deleteAccount)
+router.post('/accounts',accountHandler().createAccount)
+router.get('/accounts',accountHandler().showAccounts)
+router.get('/accounts/:accountid',accountHandler().showAccountsById)
+router.put('/accounts/:id',accountHandler().updateAccount)
+router.delete('/accounts/:bankId',accountHandler().deleteAccount)
 
-router.post('/transactions',UserHandler().createTransaction)
-router.get('/transactions',UserHandler().showTransactions)
-router.get('/transactions/:transactionId',UserHandler().showTransactionsById)
+router.post('/transactions',transactionHandler().createTransaction)
+router.get('/transactions',transactionHandler().showTransactions)
+router.get('/transactions/:transactionId',transactionHandler().showTransactionsById)
 
-router.put('/withdraw',UserHandler().withdraw)
-router.put('/deposit',UserHandler().deposit)
+router.put('/withdraw',transactionHandler().withdraw)
+router.put('/deposit',transactionHandler().deposit)
 
 
 module.exports = router
