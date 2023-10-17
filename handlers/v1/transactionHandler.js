@@ -7,8 +7,18 @@ const transactionHandler = () => {
         const tfAmount = Number(req.body.amount)
         const sourceId = Number(req.body.sourceId)
         const destinatonId = Number(req.body.destinatonId)
+        const sourceIDBalance = await prisma.bank_accounts.findUniqueOrThrow({
+            where: {
+                id : sourceId
+            }, select : {
+                balance : true,
+            }
+        })
+
 
         if (isNaN(tfAmount)) throw new Error("Not a number")
+        if (sourceId === destinatonId) throw new Error("Can't transfer to your own account")
+        if (sourceIDBalance.balance < tfAmount) throw new Error('your balance is not enough')
 
         const sender = prisma.bank_accounts.update({
             where: { 

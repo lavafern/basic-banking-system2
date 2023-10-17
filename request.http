@@ -4,11 +4,11 @@ POST http://localhost:3000/api/v1/users
 Content-Type: application/json
 
 {
-    "email" : "halo2@gmail.com",
-    "name" : "halo",
+    "email" : "finaltes2@gmail.com",
+    "name" : "finalte2",
     "identity_type" : "driving license", 
-    "identity_number" : "542322513267",
-    "address" : "Jakarta"
+    "identity_number" : "5423225134322",
+    "address" : "Tangerang"
 }
 
 ###
@@ -16,17 +16,29 @@ GET http://localhost:3000/api/v1/users
 
 
 ###
-GET http://localhost:3000/api/v1/users/15
+GET http://localhost:3000/api/v1/users/26
 
 ###
-PUT  http://localhost:3000/api/v1/users/20
+PUT  http://localhost:3000/api/v1/users/26
 Content-Type: application/json
 
 {
-    "name" : "newname",
-    "email" : "newemail@gmail.com"
+    "name" : "finalnew",
+    "email" : "finalnew2@gmail.com"
 }
+###
 
+DELETE  http://localhost:3000/api/v1/users/26
+
+###
+PUT  http://localhost:3000/api/v1/profile/26
+Content-Type: application/json
+
+{
+     "identity_type" : "Passport",
+     "identity_number" : "666666660",
+     "address" : "Bandung"
+}
 
 
 
@@ -41,9 +53,9 @@ POST http://localhost:3000/api/v1/accounts
 Content-Type: application/json
 
 {
-    "bankName" : "Bank z",
+    "bankName" : "Bank fin2",
     "balance" : 10000000,
-    "userId" : 19
+    "userId" : 26
 }
 
 ###
@@ -51,17 +63,19 @@ GET http://localhost:3000/api/v1/accounts
 
 
 ###
-GET http://localhost:3000/api/v1/accounts/15
+GET http://localhost:3000/api/v1/accounts/25
 
 ###
-PUT  http://localhost:3000/api/v1/accounts/15
+PUT  http://localhost:3000/api/v1/accounts/25
 Content-Type: application/json
 
 {
     "bankName" : "newname"
 }
 
+###
 
+DELETE  http://localhost:3000/api/v1/accounts/25
 
 
 
@@ -76,9 +90,9 @@ POST http://localhost:3000/api/v1/transactions
 Content-Type: application/json
 
 {
-    "sourceId" : 15,
-    "destinatonId" : 14,
-    "amount" : 1
+    "sourceId" : 19,
+    "destinatonId" : 20,
+    "amount" : 9999999
 }
 
 
@@ -86,7 +100,7 @@ Content-Type: application/json
 GET http://localhost:3000/api/v1/transactions
 
 ###
-GET http://localhost:3000/api/v1/transactions/11
+GET http://localhost:3000/api/v1/transactions/25
 
 
 
@@ -97,7 +111,7 @@ Content-Type: application/json
 
 {
     "bankId" : 18,
-    "amount" : 99999
+    "amount" : "99999"
 }
 
 
