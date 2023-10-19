@@ -33,13 +33,13 @@ Content-Type: application/json
 DELETE  http://localhost:3000/api/v1/users/59
 
 ###
-PUT  http://localhost:3000/api/v1/profile/26
+PUT  http://localhost:3000/api/v1/profile/17
 Content-Type: application/json
 
 {
-     "identity_type" : "KTP",
-     "identity_number" : "999999999999999999999999",
-     "address" : "Bandung"
+     "identity_type" : "",
+     "identity_number" : "",
+     "address" : ""
 }
 
 
@@ -57,7 +57,7 @@ Content-Type: application/json
 {
     "bankName" : "Bank fin2",
     "balance" : 10000000,
-    "userId" : 26
+    "userId" : 50
 }
 
 ###
@@ -65,19 +65,19 @@ GET http://localhost:3000/api/v1/accounts
 
 
 ###
-GET http://localhost:3000/api/v1/accounts/25
+GET http://localhost:3000/api/v1/accounts/35
 
 ###
-PUT  http://localhost:3000/api/v1/accounts/25
+PUT  http://localhost:3000/api/v1/accounts/35
 Content-Type: application/json
 
 {
-    "bankName" : "newname"
+    "bankName" : ""
 }
 
 ###
 
-DELETE  http://localhost:3000/api/v1/accounts/25
+DELETE  http://localhost:3000/api/v1/accounts/42
 
 
 
@@ -92,9 +92,9 @@ POST http://localhost:3000/api/v1/transactions
 Content-Type: application/json
 
 {
-    "sourceId" : 19,
-    "destinatonId" : 20,
-    "amount" : 9999999
+    "sourceId" : 20,
+    "destinatonId" : 19,
+    "amount" : 1
 }
 
 
@@ -102,7 +102,7 @@ Content-Type: application/json
 GET http://localhost:3000/api/v1/transactions
 
 ###
-GET http://localhost:3000/api/v1/transactions/25
+GET http://localhost:3000/api/v1/transactions/233
 
 
 
@@ -112,8 +112,8 @@ PUT http://localhost:3000/api/v1/withdraw
 Content-Type: application/json
 
 {
-    "bankId" : 18,
-    "amount" : "99999"
+    "bankId" : 4555,
+    "amount" : "1"
 }
 
 
@@ -124,6 +124,6 @@ PUT http://localhost:3000/api/v1/deposit
 Content-Type: application/json
 
 {
-    "bankId" : 18,
-    "amount" : 9999
+    "bankId" : 455,
+    "amount" : 1
 }

@@ -7,7 +7,7 @@ const transactionHandler = () => {
         const tfAmount = Number(req.body.amount)
         const sourceId = Number(req.body.sourceId)
         const destinatonId = Number(req.body.destinatonId)
-        const sourceIDBalance = await prisma.bank_accounts.findUniqueOrThrow({
+        const sourceIDBalance = await prisma.bank_accounts.findUnique({
             where: {
                 id : sourceId
             }, select : {
@@ -15,10 +15,19 @@ const transactionHandler = () => {
             }
         })
 
+        const destinatonIdCheck = await prisma.bank_accounts.findUnique({
+            where: {
+                id : destinatonId
+            }
+        })
 
-        if (isNaN(tfAmount)) throw new Error("Not a number")
-        if (sourceId === destinatonId) throw new Error("Can't transfer to your own account")
-        if (sourceIDBalance.balance < tfAmount) throw new Error('your balance is not enough')
+        if (!(tfAmount))  throw new Error("transfer amount are required fields",{cause : 400})
+        if (!sourceIDBalance)  throw new Error("Sender account not exist", {cause : 400})
+        if (!destinatonIdCheck)  throw new Error("Destination account not exist", {cause : 400})
+
+        if (isNaN(tfAmount)) throw new Error("Not a number", {cause : 400})
+        if (sourceId === destinatonId) throw new Error("Can't transfer to your own account", {cause : 400})
+        if (sourceIDBalance.balance < tfAmount) throw new Error('your balance is not enough', {cause : 400})
 
         const sender = prisma.bank_accounts.update({
             where: { 
@@ -54,7 +63,11 @@ const transactionHandler = () => {
         const result = {
             status : "succes",
             message : "succes do transaction!",
-            data : transactionPrisma
+            data : {
+                sender : transactionPrisma[0],
+                receiver : transactionPrisma[1],
+                transaction : transactionPrisma[2]
+            }
         }
 
         res
@@ -89,11 +102,14 @@ const transactionHandler = () => {
     const showTransactionsById = async (req,res,next) => {
         try {
             const id = Number(req.params.transactionId)
-            const foundTransaction  = await prisma.transactions.findUniqueOrThrow({
+            const foundTransaction  = await prisma.transactions.findUnique({
                 where: {
                     id : id
                 }
             })
+
+            if (!foundTransaction) throw new Error("Transaction id not found",{cause : 400})
+
             const names = await prisma.bank_accounts.findMany({
                 select : {
                     bank_name : true
@@ -126,10 +142,24 @@ const transactionHandler = () => {
 
     const withdraw = async (req,res,next) => {
         try {
-            const amount = req.body.amount
+            const amount = Number(req.body.amount)
             const bankId = req.body.bankId
-            if (isNaN(amount)) throw new Error("Not a number")
 
+            if (!amount) throw new Error("amount not valid",{cause : 400})
+            if (isNaN(amount)) throw new Error("Not a number",{cause : 400})
+
+            const bankIdCheck = await prisma.bank_accounts.findUnique({
+                where: {
+                    id : bankId
+                }, select : {
+                    balance : true
+                }
+            })
+
+            if (!bankIdCheck) throw new Error("account not found", {cause : 400})
+
+            if (amount > bankIdCheck.balance) throw new Error("not enough balance", {cause : 400})
+    
 
             const withdrawData = await prisma.bank_accounts.update({
                 where: { 
@@ -161,9 +191,19 @@ const transactionHandler = () => {
 
     const deposit = async (req,res,next) => {
         try {
-            const amount = req.body.amount
+            const amount = Number(req.body.amount)
             const bankId = req.body.bankId
-            if (isNaN(amount)) throw new Error("Not a number")
+            if (isNaN(amount)) throw new Error("Not a number",{cause : 400})
+
+            if (!amount) throw new Error("amount not valid",{cause : 400})
+            const bankIdCheck = await prisma.bank_accounts.findUnique({
+                where: {
+                    id : bankId
+                }
+            })
+    
+            if (!bankIdCheck) throw new Error("account not found",{cause : 400})
+
 
             const depositData = await prisma.bank_accounts.update({
                 where: { 
