@@ -13,7 +13,7 @@ const accountHandler = () => {
             //checkid
             await prisma.users.findUniqueOrThrow({ 
                 where: {
-                    id : userId
+                    id : 'asdasdasdsadasdsadsa'
                 }
             })
 

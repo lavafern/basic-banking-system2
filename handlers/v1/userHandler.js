@@ -4,10 +4,10 @@ const prisma = new PrismaClient()
 const UserHandler = () => {
     
     const createUser = async (req,res,next) => {
-
         try {
 
             const email = req.body.email
+            const password = req.body.password
             const name = req.body.name
             const identity_type = req.body.identity_type
             const identity_number = req.body.identity_number
@@ -19,12 +19,20 @@ const UserHandler = () => {
                 }
             })
 
-            if (checkIdentityNumber.length > 0) throw new Error("identity Number used by other user!") 
+            const checkEmail = await prisma.users.findMany({ 
+                where: {
+                    email : email
+                }
+            })
+            if (!(email) || !(name) || !(password) || !(identity_type) || !(identity_number) || !(address)) throw new Error("Name, password, email, identity type, identity number and address are required fields",{cause : 400}) 
+            if (checkEmail.length > 0) throw new Error("email used by other user!",{cause : 400}) 
+            if (checkIdentityNumber.length > 0) throw new Error("identity Number used by other user!",{cause : 400}) 
 
             const newUser = await prisma.users.create({
                 data : {
                     email : email,
                     name : name,
+                    password : password,
                     profiles : {
                         create : {
                             identity_type : identity_type,
@@ -35,10 +43,21 @@ const UserHandler = () => {
                 } 
             })
 
+            delete newUser.password
+
+            const profile = await prisma.profiles.findFirst({
+                where: {
+                  user_id: newUser.id
+                }
+              })
+
             const result = {
                 status : 'success',
                 message : 'data added succesfully! ',
-                data : newUser
+                data : {
+                    newUser,
+                    profile
+                }
             }
         
             res
@@ -84,11 +103,15 @@ const UserHandler = () => {
     const showUserById = async (req,res,next) => {
         try {
             const id = Number(req.params.userid)
-            const foundUser  = await prisma.users.findUniqueOrThrow({
+            if (isNaN(id)) throw new Error("Id should be number",{cause : 400})
+            
+            const foundUser  = await prisma.users.findUnique({
                 where: {
                     id : id
                 }
             })
+
+            if (!foundUser) throw new Error("Id not found",{cause : 400})
 
             const result = {
                 status : 'success',
@@ -110,13 +133,34 @@ const UserHandler = () => {
             const id = Number(req.params.id)
             const newName = req.body.name
             const newEmail = req.body.email
+            const NewPassword =  req.body.password
+
+            if (isNaN(id)) throw new Error("Id should be number",{cause : 400})
+
+            const idCheck  = await prisma.users.findUnique({
+                where: {
+                    id : id
+                }
+            })
+            if (!(newEmail) || (!(newName)) || !(NewPassword) ) throw new Error("Name, password and email are required fields",{cause : 400}) 
+
+            const checkEmail = await prisma.users.findUnique({
+                where : {
+                    email : newEmail
+                }
+            })
+
+            if (!idCheck) throw new Error("Id not found",{cause : 400})
+            if (checkEmail) throw new Error("Email already used",{cause : 400})
+
             const foundUser = await prisma.users.update({
                 where : {
                     id : id
                 },
                 data: {
                     name : newName,
-                    email : newEmail
+                    email : newEmail,
+                    password : NewPassword
                   }
             })
 
@@ -138,6 +182,15 @@ const UserHandler = () => {
         try {
             const id = Number(req.params.id)
 
+            const idCheck  = await prisma.users.findUnique({
+                where: {
+                    id : id
+                }
+            })
+
+            if (isNaN(id)) throw new Error("Id should be number",{cause : 400})
+            if (!idCheck) throw new Error("Id not found",{cause : 400})
+
             const deletedUser = await prisma.users.delete({
                 where : {
                     id : id
@@ -150,7 +203,7 @@ const UserHandler = () => {
                 data : deletedUser
             }
             res
-            .status(200)
+            .status(201)
             .send(result)
 
         } catch (err) {
@@ -164,13 +217,24 @@ const UserHandler = () => {
             const identity_type = req.body.identity_type
             const identity_number = req.body.identity_number
             const address = req.body.address
+
+            const idCheck  = await prisma.users.findUnique({
+                where: {
+                    id : userid
+                }
+            })
+
             const checkIdentityNumber = await prisma.profiles.findMany({ 
                 where: {
                     identity_number : identity_number
                 }
             })
 
-            if (checkIdentityNumber.length >0) throw new Error("identity Number used by other user!") 
+            if (isNaN(userid)) throw new Error("Id should be number",{cause : 400})
+            if (!idCheck) throw new Error("Id not found",{cause : 400})
+            if (!(identity_type) || (!(identity_number)) || !(address) ) throw new Error("identity number, indentity type and addres are required fields",{cause : 400}) 
+            if (checkIdentityNumber.length >0) throw new Error("identity Number used by other user!",{cause : 400}) 
+            
             const profile = await prisma.profiles.update({
                 where : {
                     user_id : userid

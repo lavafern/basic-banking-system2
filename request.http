@@ -4,11 +4,12 @@ POST http://localhost:3000/api/v1/users
 Content-Type: application/json
 
 {
-    "email" : "finaltes2@gmail.com",
-    "name" : "finalte2",
-    "identity_type" : "driving license", 
-    "identity_number" : "5423225134322",
-    "address" : "Tangerang"
+    "email" : "asdsadsdsdss@gdsasmail.com",
+    "name" : "fassa",
+    "password" : "pass",
+    "identity_type" : "sadas", 
+    "identity_number" : "67343sdsdsasdasasdasdasdd943",
+    "address" : "asdsa"
 }
 
 ###
@@ -16,27 +17,28 @@ GET http://localhost:3000/api/v1/users
 
 
 ###
-GET http://localhost:3000/api/v1/users/26
+GET http://localhost:3000/api/v1/users/50
 
 ###
-PUT  http://localhost:3000/api/v1/users/26
+PUT  http://localhost:3000/api/v1/users/99999
 Content-Type: application/json
 
 {
-    "name" : "finalnew",
-    "email" : "finalnew2@gmail.com"
+    "name" : "uodatedtesting",
+    "email" : "uodatedtesting999.com",
+    "password" : "newPassword"
 }
 ###
 
-DELETE  http://localhost:3000/api/v1/users/26
+DELETE  http://localhost:3000/api/v1/users/59
 
 ###
 PUT  http://localhost:3000/api/v1/profile/26
 Content-Type: application/json
 
 {
-     "identity_type" : "Passport",
-     "identity_number" : "666666660",
+     "identity_type" : "KTP",
+     "identity_number" : "999999999999999999999999",
      "address" : "Bandung"
 }
 
