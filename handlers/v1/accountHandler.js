@@ -5,17 +5,20 @@ const accountHandler = () => {
     const createAccount = async (req,res,next) => {
         try {
             const bankName = req.body.bankName 
-            const balance = req.body.balance
-            const userId = req.body.userId
+            const balance = Number(req.body.balance)
+            const userId = Number(req.body.userId)
             let bank_account_number = await validAccNumber(prisma.bank_accounts.findMany)
 
-            
+            if (!(bankName) || !(balance) || !(userId) || !(bank_account_number))  throw new Error("bank name, balance, and userid are required fields",{cause : 400}) 
+
             //checkid
-            await prisma.users.findUniqueOrThrow({ 
+            const checkid = await prisma.users.findUnique({ 
                 where: {
-                    id : 'asdasdasdsadasdsadsa'
+                    id : userId
                 }
             })
+
+            if (!checkid) throw new Error("Userid not exist", {cause : 400})
 
             const newAccount = await prisma.bank_accounts.create({
                 data : {
@@ -66,11 +69,13 @@ const accountHandler = () => {
     const showAccountsById = async (req,res,next) => {
         try {
             const id = Number(req.params.accountid)
-            const foundAccount  = await prisma.bank_accounts.findUniqueOrThrow({
+            const foundAccount  = await prisma.bank_accounts.findUnique({
                 where: {
                     id : id
                 }
             })
+
+            if (!foundAccount) throw new Error("no bank account found",{cause : 400})
 
             const result = {
                 status : 'success',
@@ -89,11 +94,21 @@ const accountHandler = () => {
 
     const updateAccount = async (req,res,next) => {
         try {
-            const accointId = Number(req.params.id)
+            const accountId = Number(req.params.accountid)
             const newBankName = req.body.bankName
+
+            const foundAccount  = await prisma.bank_accounts.findUnique({
+                where: {
+                    id : accountId
+                }
+            })
+
+            if (!(accountId) || !(newBankName) )  throw new Error("bank name required fields",{cause : 400}) 
+            if (!foundAccount) throw new Error("no bank account found",{cause : 400})
+
             const foundUser = await prisma.bank_accounts.update({
                 where : {
-                    id : accointId
+                    id : accountId
                 },
                 data: {
                     bank_name : newBankName
@@ -116,11 +131,22 @@ const accountHandler = () => {
 
     const deleteAccount = async (req,res,next) => {
         try {
-            const bankId = Number(req.params.bankId)
+            const accountId = Number(req.params.accountid)
 
+
+            const foundAccount  = await prisma.bank_accounts.findUnique({
+                where: {
+                    id : accountId
+                }
+            })
+
+            if (!(accountId))   throw new Error("bank name required fields",{cause : 400}) 
+            if (!foundAccount) throw new Error("no bank account found",{cause : 400})
+
+            
             const deletedAcc = await prisma.bank_accounts.delete({
                 where : {
-                    id : bankId
+                    id : accountId
                 }
             })
 
@@ -130,7 +156,7 @@ const accountHandler = () => {
                 data : deletedAcc
             }
             res
-            .status(200)
+            .status(201)
             .send(result)
 
         } catch (err) {

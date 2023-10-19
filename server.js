@@ -1,6 +1,5 @@
 require('dotenv').config()
 const express = require('express')
-const {Prisma} = require('@prisma/client')
 const app = express()
 
 const v1Router = require('./routes/v1/index')
