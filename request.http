@@ -124,6 +124,39 @@ PUT http://localhost:3000/api/v1/deposit
 Content-Type: application/json
 
 {
-    "bankId" : 455,
-    "amount" : 1
+    "bankId" : 45,
+    "amount" : "1"
 }
+
+
+###
+///with auth and bcrypt
+
+POST http://localhost:3000/api/v1/auth/register
+Content-Type: application/json
+
+{
+    "email" : "bcrypt@gmail.com",
+    "name" : "bcrypt",
+    "password" : "123456",
+    "identity_type" : "ktp", 
+    "identity_number" : "0192837465",
+    "address" : "mars"
+}
+
+### login
+POST http://localhost:3000/api/v1/auth/login
+Content-Type: application/json
+
+{
+    "email" : "bcrypt@gmail.com",
+    "password" : "123456"
+}
+
+### authenticate
+GET http://localhost:3000/api/v1/auth/authenticate
+Authorization: eywJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTQ3LCJuYW1lIjoiYmNyeXB0IiwiaWF0IjoxNjk3Nzc0NDE5fQ.MNNC6rj3YXfk6LMSgGc-Sm8G7wCWi9Gl4zhoShxLI3U
+
+
+###
+GET http://localhost:3000/api/v1/auth
