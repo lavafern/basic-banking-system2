@@ -787,44 +787,7 @@ components:
             user_id:
               type: integer
 
-        # id:
-          # type: integer
-          # example: 1
-        # name:
-          # type: string
-          # example: "bujang"
-        # email:
-          # type: string
-          # example: "bujang@mail.com"
-    PostModel:
-      title: Post
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 1
-        title:
-          type: string
-          example: "Software Development Life Cycle"
-        isPublished:
-          type: boolean
-          example: true
-    Pagination:
-      title: Pagination
-      type: object
-      properties:
-        links:
-          type: object
-          properties:
-            next:
-              type: string
-              example: "https://domain.com/users?page=3&limit=10"
-            prev:
-              type: string
-              example: "https://domain.com/users?page=1&limit=10"
-        total_items:
-          type: integer
-          example: 100
+    
   requestBodies:
     CreateUser:
       content:
