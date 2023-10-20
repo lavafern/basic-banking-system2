@@ -119,9 +119,9 @@ module.exports = {
 
         authenticate  : async (req,res,next) => {
             try {
-                let  {authorization}  = req.headers;                console.log(authorization);
+                let  authorization  = req.headers['authorization'];                console.log(authorization);
                 if (!authorization) throw new Error("invalid token", {cause : 401})
-                
+                authorization = authorization.split(' ')[1];
                 const decoded = await jwt.verify(authorization,process.env.ACCES_TOKEN_SECRET)
                 req.user = await prisma.users.findUnique({
                     where : {

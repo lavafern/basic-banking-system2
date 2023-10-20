@@ -8,11 +8,16 @@ info:
   version: 1.0.0
 servers:
   - url: http://localhost:3000/api/v1
+
+
 tags:
   - name: User
     description: Operations related to users
-  - name: Post
-    description: Operations related to posts
+  - name: Bank account
+    description: Operations related to bank accounts
+  - name: Transaction
+    description: Operations related to transactions
+
 paths:
   /users:
     post:
@@ -124,19 +129,13 @@ paths:
             schema:
               type: object
               properties:
+                name:
+                  type: string
                 email:
                   type: string
-                  example: "wow"
+                password:
+                  type: string
       
-
-              
-               
-             
-             
-             
-             
-             
-             
       parameters:
         - in: path
           name: userId
@@ -190,20 +189,29 @@ paths:
                   - type: object
                     properties:
                       data:
-                        type: object
-                        example: null
-  /posts:
+                       type: object
+                       properties:
+                         id:
+                           type: integer
+                         name:
+                           type: string
+                         email:
+                           type: string
+                           format: email
+                         password:
+                           type: string
+  /auth/register:
     post:
       tags:
-        - Post
-      operationId: post-create-post
-      summary: Create a new post
-      description: Creates a new post with the provided information.
+        - User
+      operationId: post-create-new-user
+      summary: Create a new user
+      description: Creates a new user with the provided information.
       requestBody:
-        $ref: "#/components/requestBodies/CreatePost"
+        $ref: "#/components/requestBodies/CreateUser"
       responses:
         "201":
-          description: Successful post creation
+          description: Successful user creation
           content:
             application/json:
               schema:
@@ -212,26 +220,25 @@ paths:
                   - type: object
                     properties:
                       data:
-                        $ref: "#/components/schemas/PostModel"
-    get:
+                        $ref: "#/components/schemas/UserModel"
+  /auth/login:
+    post:
       tags:
-        - Post
-      operationId: get-fetch-all-post
-      summary: Get all posts
-      description: Retrieves a list of all registered posts.
-      parameters:
-        - in: query
-          name: page
-          schema:
-            type: integer
-          required: false
-          description: Page number for pagination.
-        - in: query
-          name: limit
-          schema:
-            type: integer
-          required: false
-          description: Number of items per page.
+        - User
+      operationId: get-fetch-all-user
+      summary: login user (get acces token)
+      description: login user.
+      requestBody:
+        description: A JSON object containing pet information
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
       responses:
         "200":
           description: Successful operation
@@ -245,22 +252,148 @@ paths:
                       data:
                         type: object
                         properties:
-                          pagination:
-                            $ref: "#/components/schemas/Pagination"
-                          posts:
-                            type: array
-                            items:
-                              $ref: "#/components/schemas/PostModel"
-  "/posts/{postId}":
+                          user:
+                            type: object
+                            properties:
+                              id:
+                                type: integer
+                              name:
+                                type: string
+                              email:
+                                type: string
+                              password:
+                                type: string
+                          accesToken:
+                            type: string
+  /auth/authenticate:
     get:
       tags:
-        - Post
+        - User
+      operationId: get-fetch-all-user
+      summary: login user (get acces token)
+      description: login user.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          user:
+                            type: object
+                            properties:
+                              id:
+                                type: integer
+                              name:
+                                type: string
+                              email:
+                                type: string
+                              password:
+                                type: string
+                          accesToken:
+                            type: string
+
+
+
+
+
+  /accounts:
+    post:
+      tags:
+        - Bank account
+      operationId: post-create-post
+      summary: Create a new bank account
+      description: Creates a new post with the provided information.
+      requestBody:
+        description: A JSON object containing pet information
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                bankName:
+                  type: string
+                balance:
+                  type: integer
+                userId:
+                  type: integer
+      
+      responses:
+        "201":
+          description: Successful bank acount creation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                         id:
+                           type: integer
+                         bankName:
+                           type: string
+                         bank_account_number:
+                           type: string
+                         balance:
+                           type: integer
+                         user_id:
+                           type: integer
+
+    get:
+      tags:
+        - Bank account
+      operationId: get-fetch-all-post
+      summary: Get all bank accounts
+      description: Retrieves a list of all bank accounts.
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items : 
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                            bank_name:
+                              type: string
+                            bank_account_number:
+                              type: string
+                            balance:
+                              type: integer
+                            user_id:
+                              type: integer
+                            
+                  
+                  
+  "/accounts/{accountId}":
+    get:
+      tags:
+        - Bank account
       operationId: get-fetch-post-detail
-      summary: Get post details
-      description: Retrieves details of a specific post.
+      summary: Get account details
+      description: Retrieves details of a specific account.
       parameters:
         - in: path
-          name: postId
+          name: accountId
           schema:
             type: integer
           required: true
@@ -276,8 +409,345 @@ paths:
                   - type: object
                     properties:
                       data:
-                        $ref: "#/components/schemas/PostModel"
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          bank_name:
+                            type: string
+                          bank_account_number:
+                            type: string
+                          balance:
+                            type: integer
+                          user_id:
+                            type: integer
+
+    put:
+      tags:
+        - Bank account
+      operationId: put-update-user
+      summary: Update user details
+      description: Updates details of a specific user.
+      requestBody:
+        description: A JSON object containing pet information
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                bankName:
+                  type: string
+      
+      parameters:
+        - in: path
+          name: accountId
+          schema:
+            type: integer
+          required: true
+          description: The ID of the user to update.
+      responses:
+        "200":
+          description: Successful user update
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          bank_name:
+                            type: string
+                          bank_account_number:
+                            type: string
+                          balance:
+                            type: integer
+                          user_id:
+                            type: integer
+    delete:
+      tags:
+        - Bank account
+      operationId: delete-remove-user
+      summary: Delete account
+      description: Deletes a specific account.
+      parameters:
+        - in: path
+          name: accountId
+          schema:
+            type: integer
+          required: true
+          description: The ID of the user to delete.
+      responses:
+        "200":
+          description: Successful user deletion
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          bank_name:
+                            type: string
+                          bank_account_number:
+                            type: string
+                          balance:
+                            type: integer
+                          user_id:
+                            type: integer
+                  
+
+  /transactions:
+    post:
+      tags:
+        - Transaction
+      operationId: post-create-post
+      summary: Create a new bank account
+      description: Creates a new post with the provided information.
+      requestBody:
+        description: A JSON object containing pet information
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sourceId:
+                  type: integer
+                destinatonId:
+                  type: integer
+                amount:
+                  type: integer
+      
+      responses:
+        "201":
+          description: Successful transfer
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                     data:
+                      type: object
+                      properties: 
+                        sender:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                            bank_name:
+                              type: string
+                            bank_account_number:
+                              type: string
+                            balance:
+                              type: integer
+                            user_id:
+                              type: integer
+                        receiver:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                            bank_name:
+                              type: string
+                            bank_account_number:
+                              type: string
+                            balance:
+                              type: integer
+                            user_id:
+                              type: integer
+                        transaction:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                            amount:
+                              type: integer
+                            identity_number:
+                              type: integer
+                            source_account_id:
+                              type: integer
+                            destination_account_id:
+                              type: integer
+    get:
+      tags:
+        - Transaction
+      operationId: get-fetch-all-post
+      summary: Get all bank transaction
+      description: Retrieves a list of all bank transaction.
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items : 
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                            amount:
+                              type: integer
+                            source_account_id:
+                              type: integer
+                            destination_account_id:
+                              type: integer
+
+  "/transactions/{transactionId}":
+    get:
+      tags:
+        - Transaction
+      operationId: get-fetch-post-detail
+      summary: Get transaction details
+      description: Retrieves details of a specific transaction.
+      parameters:
+        - in: path
+          name: transactionId
+          schema:
+            type: integer
+          required: true
+          description: The ID of the post to retrieve.
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          amount:
+                            type: integer
+                          source_account_id:
+                            type: integer
+                          destination_account_id:
+                            type: integer
+                          source_account_name:
+                            type: string
+                          destination_account_name:
+                            type: string
+                            
+    
+  "/withdraw":
+    put:
+      tags:
+        - Transaction
+      operationId: get-fetch-post-detail
+      summary: Get withdraw details
+      description: Retrieves details of a specific withdraw.
+      requestBody:
+        description: A JSON object containing withdraw information
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                bankId:
+                  type: integer
+                amount:
+                  type: integer
+      
+      responses:
+        "201":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          bank_name:
+                            type: string
+                          bank_account_number:
+                            type: string
+                          balance:
+                            type: integer
+                          user_id:
+                            type: integer
+  
+  "/deposit":
+    put:
+      tags:
+        - Transaction
+      operationId: get-fetch-post-detail
+      summary: Get withdraw details
+      description: Retrieves details of a specific withdraw.
+      requestBody:
+        description: A JSON object containing withdraw information
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                bankId:
+                  type: integer
+                amount:
+                  type: integer
+      
+      responses:
+        "201":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          bank_name:
+                            type: string
+                          bank_account_number:
+                            type: string
+                          balance:
+                            type: integer
+                          user_id:
+                            type: integer
+  
+
+
+
+
+
+
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
     BasicResponse:
       title: BasicResponse
@@ -362,10 +832,10 @@ components:
           schema:
             type: object
             properties:
-              email:
+              name:
                 type: string
                 example: "rian"
-              name:
+              email:
                 type: string
                 example: "rian@mail.com"
               password:
